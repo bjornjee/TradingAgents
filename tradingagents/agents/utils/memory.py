@@ -1,13 +1,11 @@
 import chromadb
 from chromadb.config import Settings
-from openai import OpenAI
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
 class FinancialSituationMemory:
     def __init__(self, name):
-        self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
         self.situation_collection = self.chroma_client.create_collection(name=name)
 
@@ -18,7 +16,7 @@ class FinancialSituationMemory:
         # )
         # return response.data[0].embedding
         return self.embedding_model.encode(text, convert_to_tensor=False)
-        
+
     def add_situations(self, situations_and_advice):
         """Add financial situations and their corresponding advice. Parameter is a list of tuples (situation, rec)"""
 
@@ -37,7 +35,7 @@ class FinancialSituationMemory:
 
         self.situation_collection.add(
             documents=situations,
-            metadatas=[{"recommendation": rec} for rec in advice],
+            metadatas=[{'recommendation': rec} for rec in advice],
             embeddings=embeddings,
             ids=ids,
         )
@@ -49,43 +47,43 @@ class FinancialSituationMemory:
         results = self.situation_collection.query(
             query_embeddings=[query_embedding],
             n_results=n_matches,
-            include=["metadatas", "documents", "distances"],
+            include=['metadatas', 'documents', 'distances'],
         )
 
         matched_results = []
-        for i in range(len(results["documents"][0])):
+        for i in range(len(results['documents'][0])):
             matched_results.append(
                 {
-                    "matched_situation": results["documents"][0][i],
-                    "recommendation": results["metadatas"][0][i]["recommendation"],
-                    "similarity_score": 1 - results["distances"][0][i],
+                    'matched_situation': results['documents'][0][i],
+                    'recommendation': results['metadatas'][0][i]['recommendation'],
+                    'similarity_score': 1 - results['distances'][0][i],
                 }
             )
 
         return matched_results
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Example usage
     matcher = FinancialSituationMemory()
 
     # Example data
     example_data = [
         (
-            "High inflation rate with rising interest rates and declining consumer spending",
-            "Consider defensive sectors like consumer staples and utilities. Review fixed-income portfolio duration.",
+            'High inflation rate with rising interest rates and declining consumer spending',
+            'Consider defensive sectors like consumer staples and utilities. Review fixed-income portfolio duration.',
         ),
         (
-            "Tech sector showing high volatility with increasing institutional selling pressure",
-            "Reduce exposure to high-growth tech stocks. Look for value opportunities in established tech companies with strong cash flows.",
+            'Tech sector showing high volatility with increasing institutional selling pressure',
+            'Reduce exposure to high-growth tech stocks. Look for value opportunities in established tech companies with strong cash flows.',
         ),
         (
-            "Strong dollar affecting emerging markets with increasing forex volatility",
-            "Hedge currency exposure in international positions. Consider reducing allocation to emerging market debt.",
+            'Strong dollar affecting emerging markets with increasing forex volatility',
+            'Hedge currency exposure in international positions. Consider reducing allocation to emerging market debt.',
         ),
         (
-            "Market showing signs of sector rotation with rising yields",
-            "Rebalance portfolio to maintain target allocations. Consider increasing exposure to sectors benefiting from higher rates.",
+            'Market showing signs of sector rotation with rising yields',
+            'Rebalance portfolio to maintain target allocations. Consider increasing exposure to sectors benefiting from higher rates.',
         ),
     ]
 
@@ -102,10 +100,10 @@ if __name__ == "__main__":
         recommendations = matcher.get_memories(current_situation, n_matches=2)
 
         for i, rec in enumerate(recommendations, 1):
-            print(f"\nMatch {i}:")
-            print(f"Similarity Score: {rec['similarity_score']:.2f}")
-            print(f"Matched Situation: {rec['matched_situation']}")
-            print(f"Recommendation: {rec['recommendation']}")
+            print(f'\nMatch {i}:')
+            print(f'Similarity Score: {rec["similarity_score"]:.2f}')
+            print(f'Matched Situation: {rec["matched_situation"]}')
+            print(f'Recommendation: {rec["recommendation"]}')
 
     except Exception as e:
-        print(f"Error during recommendation: {str(e)}")
+        print(f'Error during recommendation: {str(e)}')

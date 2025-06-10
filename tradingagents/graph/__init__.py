@@ -8,10 +8,10 @@ from .reflection import Reflector
 from .signal_processing import SignalProcessor
 
 __all__ = [
-    "TradingAgentsGraph",
-    "ConditionalLogic",
-    "GraphSetup",
-    "Propagator",
-    "Reflector",
-    "SignalProcessor",
+    'TradingAgentsGraph',
+    'ConditionalLogic',
+    'GraphSetup',
+    'Propagator',
+    'Reflector',
+    'SignalProcessor',
 ]
