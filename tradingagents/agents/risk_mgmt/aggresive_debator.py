@@ -1,22 +1,18 @@
-import time
-import json
-
-
 def create_risky_debator(llm):
     def risky_node(state) -> dict:
-        risk_debate_state = state["risk_debate_state"]
-        history = risk_debate_state.get("history", "")
-        risky_history = risk_debate_state.get("risky_history", "")
+        risk_debate_state = state['risk_debate_state']
+        history = risk_debate_state.get('history', '')
+        risky_history = risk_debate_state.get('risky_history', '')
 
-        current_safe_response = risk_debate_state.get("current_safe_response", "")
-        current_neutral_response = risk_debate_state.get("current_neutral_response", "")
+        current_safe_response = risk_debate_state.get('current_safe_response', '')
+        current_neutral_response = risk_debate_state.get('current_neutral_response', '')
 
-        market_research_report = state["market_report"]
-        sentiment_report = state["sentiment_report"]
-        news_report = state["news_report"]
-        fundamentals_report = state["fundamentals_report"]
+        market_research_report = state['market_report']
+        sentiment_report = state['sentiment_report']
+        news_report = state['news_report']
+        fundamentals_report = state['fundamentals_report']
 
-        trader_decision = state["trader_investment_plan"]
+        trader_decision = state['trader_investment_plan']
 
         prompt = f"""As the Risky Risk Analyst, your role is to actively champion high-reward, high-risk opportunities, emphasizing bold strategies and competitive advantages. When evaluating the trader's decision or plan, focus intently on the potential upside, growth potential, and innovative benefits—even when these come with elevated risk. Use the provided market data and sentiment analysis to strengthen your arguments and challenge the opposing views. Specifically, respond directly to each point made by the conservative and neutral analysts, countering with data-driven rebuttals and persuasive reasoning. Highlight where their caution might miss critical opportunities or where their assumptions may be overly conservative. Here is the trader's decision:
 
@@ -34,22 +30,22 @@ Engage actively by addressing any specific concerns raised, refuting the weaknes
 
         response = llm.invoke(prompt)
 
-        argument = f"Risky Analyst: {response.content}"
+        argument = f'Risky Analyst: {response.content}'
 
         new_risk_debate_state = {
-            "history": history + "\n" + argument,
-            "risky_history": risky_history + "\n" + argument,
-            "safe_history": risk_debate_state.get("safe_history", ""),
-            "neutral_history": risk_debate_state.get("neutral_history", ""),
-            "latest_speaker": "Risky",
-            "current_risky_response": argument,
-            "current_safe_response": risk_debate_state.get("current_safe_response", ""),
-            "current_neutral_response": risk_debate_state.get(
-                "current_neutral_response", ""
+            'history': history + '\n' + argument,
+            'risky_history': risky_history + '\n' + argument,
+            'safe_history': risk_debate_state.get('safe_history', ''),
+            'neutral_history': risk_debate_state.get('neutral_history', ''),
+            'latest_speaker': 'Risky',
+            'current_risky_response': argument,
+            'current_safe_response': risk_debate_state.get('current_safe_response', ''),
+            'current_neutral_response': risk_debate_state.get(
+                'current_neutral_response', ''
             ),
-            "count": risk_debate_state["count"] + 1,
+            'count': risk_debate_state['count'] + 1,
         }
 
-        return {"risk_debate_state": new_risk_debate_state}
+        return {'risk_debate_state': new_risk_debate_state}
 
     return risky_node

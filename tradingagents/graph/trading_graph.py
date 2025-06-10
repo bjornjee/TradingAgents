@@ -3,8 +3,7 @@
 import os
 from pathlib import Path
 import json
-from datetime import date
-from typing import Dict, Any, Tuple, List, Optional
+from typing import Dict, Any
 
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import ToolNode
@@ -12,11 +11,6 @@ from langgraph.prebuilt import ToolNode
 from tradingagents.agents import *
 from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.agents.utils.memory import FinancialSituationMemory
-from tradingagents.agents.utils.agent_states import (
-    AgentState,
-    InvestDebateState,
-    RiskDebateState,
-)
 from tradingagents.dataflows.interface import set_config
 
 from .conditional_logic import ConditionalLogic
@@ -31,7 +25,7 @@ class TradingAgentsGraph:
 
     def __init__(
         self,
-        selected_analysts=["market", "social", "news", "fundamentals"],
+        selected_analysts=['market', 'social', 'news', 'fundamentals'],
         debug=False,
         config: Dict[str, Any] = None,
     ):
@@ -50,24 +44,27 @@ class TradingAgentsGraph:
 
         # Create necessary directories
         os.makedirs(
-            os.path.join(self.config["project_dir"], "dataflows/data_cache"),
+            os.path.join(self.config['project_dir'], 'dataflows/data_cache'),
             exist_ok=True,
         )
 
         # Initialize LLMs
-        self.deep_thinking_llm = ChatOpenAI(base_url=self.config['base_url'],model=self.config["deep_think_llm"])
+        self.deep_thinking_llm = ChatOpenAI(
+            base_url=self.config['base_url'], model=self.config['deep_think_llm']
+        )
         self.quick_thinking_llm = ChatOpenAI(
             base_url=self.config['base_url'],
-            model=self.config["quick_think_llm"], temperature=0.1
+            model=self.config['quick_think_llm'],
+            temperature=0.1,
         )
         self.toolkit = Toolkit(config=self.config)
 
         # Initialize memories
-        self.bull_memory = FinancialSituationMemory("bull_memory")
-        self.bear_memory = FinancialSituationMemory("bear_memory")
-        self.trader_memory = FinancialSituationMemory("trader_memory")
-        self.invest_judge_memory = FinancialSituationMemory("invest_judge_memory")
-        self.risk_manager_memory = FinancialSituationMemory("risk_manager_memory")
+        self.bull_memory = FinancialSituationMemory('bull_memory')
+        self.bear_memory = FinancialSituationMemory('bear_memory')
+        self.trader_memory = FinancialSituationMemory('trader_memory')
+        self.invest_judge_memory = FinancialSituationMemory('invest_judge_memory')
+        self.risk_manager_memory = FinancialSituationMemory('risk_manager_memory')
 
         # Create tool nodes
         self.tool_nodes = self._create_tool_nodes()
@@ -102,7 +99,7 @@ class TradingAgentsGraph:
     def _create_tool_nodes(self) -> Dict[str, ToolNode]:
         """Create tool nodes for different data sources."""
         return {
-            "market": ToolNode(
+            'market': ToolNode(
                 [
                     # online tools
                     self.toolkit.get_YFin_data_online,
@@ -112,7 +109,7 @@ class TradingAgentsGraph:
                     self.toolkit.get_stockstats_indicators_report,
                 ]
             ),
-            "social": ToolNode(
+            'social': ToolNode(
                 [
                     # online tools
                     self.toolkit.get_stock_news_openai,
@@ -120,7 +117,7 @@ class TradingAgentsGraph:
                     self.toolkit.get_reddit_stock_info,
                 ]
             ),
-            "news": ToolNode(
+            'news': ToolNode(
                 [
                     # online tools
                     self.toolkit.get_global_news_openai,
@@ -130,7 +127,7 @@ class TradingAgentsGraph:
                     self.toolkit.get_reddit_news,
                 ]
             ),
-            "fundamentals": ToolNode(
+            'fundamentals': ToolNode(
                 [
                     # online tools
                     self.toolkit.get_fundamentals_openai,
@@ -159,10 +156,10 @@ class TradingAgentsGraph:
             # Debug mode with tracing
             trace = []
             for chunk in self.graph.stream(init_agent_state, **args):
-                if len(chunk["messages"]) == 0:
+                if len(chunk['messages']) == 0:
                     pass
                 else:
-                    chunk["messages"][-1].pretty_print()
+                    chunk['messages'][-1].pretty_print()
                     trace.append(chunk)
 
             final_state = trace[-1]
@@ -177,47 +174,47 @@ class TradingAgentsGraph:
         self._log_state(trade_date, final_state)
 
         # Return decision and processed signal
-        return final_state, self.process_signal(final_state["final_trade_decision"])
+        return final_state, self.process_signal(final_state['final_trade_decision'])
 
     def _log_state(self, trade_date, final_state):
         """Log the final state to a JSON file."""
         self.log_states_dict[str(trade_date)] = {
-            "company_of_interest": final_state["company_of_interest"],
-            "trade_date": final_state["trade_date"],
-            "market_report": final_state["market_report"],
-            "sentiment_report": final_state["sentiment_report"],
-            "news_report": final_state["news_report"],
-            "fundamentals_report": final_state["fundamentals_report"],
-            "investment_debate_state": {
-                "bull_history": final_state["investment_debate_state"]["bull_history"],
-                "bear_history": final_state["investment_debate_state"]["bear_history"],
-                "history": final_state["investment_debate_state"]["history"],
-                "current_response": final_state["investment_debate_state"][
-                    "current_response"
+            'company_of_interest': final_state['company_of_interest'],
+            'trade_date': final_state['trade_date'],
+            'market_report': final_state['market_report'],
+            'sentiment_report': final_state['sentiment_report'],
+            'news_report': final_state['news_report'],
+            'fundamentals_report': final_state['fundamentals_report'],
+            'investment_debate_state': {
+                'bull_history': final_state['investment_debate_state']['bull_history'],
+                'bear_history': final_state['investment_debate_state']['bear_history'],
+                'history': final_state['investment_debate_state']['history'],
+                'current_response': final_state['investment_debate_state'][
+                    'current_response'
                 ],
-                "judge_decision": final_state["investment_debate_state"][
-                    "judge_decision"
+                'judge_decision': final_state['investment_debate_state'][
+                    'judge_decision'
                 ],
             },
-            "trader_investment_decision": final_state["trader_investment_plan"],
-            "risk_debate_state": {
-                "risky_history": final_state["risk_debate_state"]["risky_history"],
-                "safe_history": final_state["risk_debate_state"]["safe_history"],
-                "neutral_history": final_state["risk_debate_state"]["neutral_history"],
-                "history": final_state["risk_debate_state"]["history"],
-                "judge_decision": final_state["risk_debate_state"]["judge_decision"],
+            'trader_investment_decision': final_state['trader_investment_plan'],
+            'risk_debate_state': {
+                'risky_history': final_state['risk_debate_state']['risky_history'],
+                'safe_history': final_state['risk_debate_state']['safe_history'],
+                'neutral_history': final_state['risk_debate_state']['neutral_history'],
+                'history': final_state['risk_debate_state']['history'],
+                'judge_decision': final_state['risk_debate_state']['judge_decision'],
             },
-            "investment_plan": final_state["investment_plan"],
-            "final_trade_decision": final_state["final_trade_decision"],
+            'investment_plan': final_state['investment_plan'],
+            'final_trade_decision': final_state['final_trade_decision'],
         }
 
         # Save to file
-        directory = Path(f"eval_results/{self.ticker}/TradingAgentsStrategy_logs/")
+        directory = Path(f'eval_results/{self.ticker}/TradingAgentsStrategy_logs/')
         directory.mkdir(parents=True, exist_ok=True)
 
         with open(
-            f"eval_results/{self.ticker}/TradingAgentsStrategy_logs/full_states_log.json",
-            "w",
+            f'eval_results/{self.ticker}/TradingAgentsStrategy_logs/full_states_log.json',
+            'w',
         ) as f:
             json.dump(self.log_states_dict, f, indent=4)
 

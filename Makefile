@@ -1,4 +1,4 @@
-.PHONY: setup
+.PHONY: setup black
 
 setup:
 	@if [ ! -d .venv ]; then \
@@ -21,3 +21,6 @@ setup:
 	          echo "export FINNHUB_API_KEY=$$FINNHUB_KEY" > .env; \
 	          echo "export OPENAI_API_KEY=$$OPENAI_KEY" >> .env; \
 	          echo "API keys saved to .env file. Run '\''source .env'\'' to load them."'
+
+format:
+	ruff format
