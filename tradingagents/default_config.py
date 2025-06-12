@@ -8,9 +8,19 @@ DEFAULT_CONFIG = {
         'dataflows/data_cache',
     ),
     # LLM settings
-    'base_url': 'https://openrouter.ai/api/v1',
-    'deep_think_llm': 'deepseek/deepseek-r1:free',
-    'quick_think_llm': 'deepseek/deepseek-r1:free',
+    'deep_think_llm': {
+        'provider': 'gemini',
+        'model': 'gemini-2.0-flash',
+        'temperature': 0.7,
+    },
+    'quick_think_llm': {
+        'provider': 'gemini',
+        'model': 'gemini-2.0-flash',
+        'temperature': 0.1,
+    },
+    # Provider-specific settings
+    'openrouter': {'base_url': 'https://openrouter.ai/api/v1'},
+    'gemini': {'google_api_key': os.getenv('GOOGLE_API_KEY', '')},
     # Debate and discussion settings
     'max_debate_rounds': 1,
     'max_risk_discuss_rounds': 1,

@@ -303,6 +303,8 @@ def get_google_news(
     if len(news_results) == 0:
         return ''
 
+    print(news_str)
+
     return f'## {query} Google News, from {before} to {curr_date}:\n\n{news_str}'
 
 

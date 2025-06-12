@@ -5,13 +5,14 @@ from pathlib import Path
 import json
 from typing import Dict, Any
 
-from langchain_openai import ChatOpenAI
+from tradingagents.llm import LLMFactory
+
 from langgraph.prebuilt import ToolNode
 
 from tradingagents.agents import *
 from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.agents.utils.memory import FinancialSituationMemory
-from tradingagents.dataflows.interface import set_config
+from tradingagents.dataflows.config import set_config
 
 from .conditional_logic import ConditionalLogic
 from .setup import GraphSetup
@@ -49,14 +50,23 @@ class TradingAgentsGraph:
         )
 
         # Initialize LLMs
-        self.deep_thinking_llm = ChatOpenAI(
-            base_url=self.config['base_url'], model=self.config['deep_think_llm']
+        deep_think_config = self.config['deep_think_llm']
+        quick_think_config = self.config['quick_think_llm']
+
+        self.deep_thinking_llm = LLMFactory.create_llm(
+            self.config,
+            deep_think_config.get('provider', 'gemini'),
+            deep_think_config.get('model', 'gemini-2.0-flash'),
+            deep_think_config.get('temperature', 0.1),
         )
-        self.quick_thinking_llm = ChatOpenAI(
-            base_url=self.config['base_url'],
-            model=self.config['quick_think_llm'],
-            temperature=0.1,
+
+        self.quick_thinking_llm = LLMFactory.create_llm(
+            self.config,
+            quick_think_config.get('provider', 'gemini'),
+            quick_think_config.get('model', 'gemini-2.0-flash'),
+            quick_think_config.get('temperature', 0.1),
         )
+
         self.toolkit = Toolkit(config=self.config)
 
         # Initialize memories
