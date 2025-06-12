@@ -444,16 +444,16 @@ def get_user_selections():
             'Step 5: Thinking Agents', 'Select your thinking agents for analysis'
         )
     )
-    selected_shallow_thinker = select_shallow_thinking_agent()
-    selected_deep_thinker = select_deep_thinking_agent()
+    selected_shallow_thinker_config = select_shallow_thinking_agent()
+    selected_deep_thinker_config = select_deep_thinking_agent()
 
     return {
         'ticker': selected_ticker,
         'analysis_date': analysis_date,
         'analysts': selected_analysts,
         'research_depth': selected_research_depth,
-        'shallow_thinker': selected_shallow_thinker,
-        'deep_thinker': selected_deep_thinker,
+        'shallow_thinker_config': selected_shallow_thinker_config,
+        'deep_thinker_config': selected_deep_thinker_config,
     }
 
 
@@ -686,8 +686,8 @@ def run_analysis():
     config = DEFAULT_CONFIG.copy()
     config['max_debate_rounds'] = selections['research_depth']
     config['max_risk_discuss_rounds'] = selections['research_depth']
-    config['quick_think_llm'] = selections['shallow_thinker']
-    config['deep_think_llm'] = selections['deep_thinker']
+    config['quick_think_llm'] = selections['shallow_thinker_config']
+    config['deep_think_llm'] = selections['deep_thinker_config']
 
     # Initialize the graph
     graph = TradingAgentsGraph(
