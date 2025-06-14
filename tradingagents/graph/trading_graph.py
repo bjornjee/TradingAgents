@@ -20,6 +20,8 @@ from .propagation import Propagator
 from .reflection import Reflector
 from .signal_processing import SignalProcessor
 
+from langfuse.langchain import CallbackHandler
+
 
 class TradingAgentsGraph:
     """Main class that orchestrates the trading agents framework."""
@@ -122,7 +124,7 @@ class TradingAgentsGraph:
             'social': ToolNode(
                 [
                     # online tools
-                    self.toolkit.get_stock_news_openai,
+                    self.toolkit.get_stock_news_llm,
                     # offline tools
                     self.toolkit.get_reddit_stock_info,
                 ]
@@ -130,7 +132,7 @@ class TradingAgentsGraph:
             'news': ToolNode(
                 [
                     # online tools
-                    self.toolkit.get_global_news_openai,
+                    self.toolkit.get_global_news_llm,
                     self.toolkit.get_google_news,
                     # offline tools
                     self.toolkit.get_finnhub_news,
@@ -140,7 +142,7 @@ class TradingAgentsGraph:
             'fundamentals': ToolNode(
                 [
                     # online tools
-                    self.toolkit.get_fundamentals_openai,
+                    self.toolkit.get_fundamentals_llm,
                     # offline tools
                     self.toolkit.get_finnhub_company_insider_sentiment,
                     self.toolkit.get_finnhub_company_insider_transactions,
@@ -155,12 +157,16 @@ class TradingAgentsGraph:
         """Run the trading agents graph for a company on a specific date."""
 
         self.ticker = company_name
+        langfuse_handler = CallbackHandler()
 
         # Initialize state
         init_agent_state = self.propagator.create_initial_state(
             company_name, trade_date
         )
         args = self.propagator.get_graph_args()
+        # add langfuse handler to the graph args
+        args['config'] = args.get('config', {})
+        args['config'].update({'callbacks': [langfuse_handler]})
 
         if self.debug:
             # Debug mode with tracing
