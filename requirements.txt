@@ -25,3 +25,5 @@ questionary
 sentence-transformers
 ruff
 langchain_google_genai
+google-genai
+langfuse
