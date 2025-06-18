@@ -352,7 +352,7 @@ class Toolkit:
         curr_date: Annotated[str, 'Current date in yyyy-mm-dd format'],
     ):
         """
-        Retrieve the latest news about a given stock by using OpenAI's news API.
+        Retrieve the latest news about a given stock by using Google Gemini's news API.
         Args:
             ticker (str): Ticker of a company. e.g. AAPL, TSM
             curr_date (str): Current date in yyyy-mm-dd format
@@ -396,8 +396,6 @@ class Toolkit:
             str: A formatted string containing the latest fundamental information about the company on the given date.
         """
 
-        openai_fundamentals_results = interface.get_fundamentals_llm(
-            ticker, curr_date
-        )
+        openai_fundamentals_results = interface.get_fundamentals_llm(ticker, curr_date)
 
         return openai_fundamentals_results

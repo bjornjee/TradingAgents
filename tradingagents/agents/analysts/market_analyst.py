@@ -71,7 +71,12 @@ Volume-Based Indicators:
 
         chain = prompt | llm.bind_tools(tools)
 
-        result = chain.invoke(state['messages'])
+        # Ensure we have at least one message with the company name
+        messages = state.get('messages', [])
+        if not messages:
+            messages = [('human', f"Analyze {ticker}")]
+        
+        result = chain.invoke(messages)
 
         return {
             'messages': [result],
