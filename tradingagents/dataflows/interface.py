@@ -703,26 +703,24 @@ def get_YFin_data(
 def get_global_news_llm(curr_date):
     # Initialize the model
     client = genai.Client()
-    model_id= 'gemini-2.0-flash'
-    
+    model_id = 'gemini-2.0-flash'
+
     # Calculate the date range
     start_date = datetime.strptime(curr_date, '%Y-%m-%d')
     before = start_date - relativedelta(days=7)
     before = before.strftime('%Y-%m-%d')
-    
+
     prompt = f'Can you search global or macroeconomics news from {before} to {curr_date} that would be informative for trading purposes? Make sure you only get the data posted during that period.'
-    
+
     response = client.models.generate_content(
-        model = model_id,
+        model=model_id,
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.1,
             max_output_tokens=4096,
             top_p=1,
-            tools=[types.Tool(
-                google_search_retrieval=types.GoogleSearchRetrieval()
-            )],
-            response_modalities=["TEXT"],
+            tools=[types.Tool(google_search=types.GoogleSearch())],
+            response_modalities=['TEXT'],
         ),
     )
     return response.text
@@ -732,50 +730,25 @@ def get_stock_news_llm(ticker, curr_date):
     # Initialize the model
     client = genai.Client()
     model_id = 'gemini-2.0-flash'
-    
+
     # Calculate the date range
     start_date = datetime.strptime(curr_date, '%Y-%m-%d')
     before = start_date - relativedelta(days=7)
     before = before.strftime('%Y-%m-%d')
-    
+
     prompt = f'Can you search Social Media for {ticker} from {before} to {curr_date}? Make sure you only get the data posted during that period.'
-    
+
     response = client.models.generate_content(
-        model = model_id,
+        model=model_id,
         contents=prompt,
-        generation_config={
-            'temperature': 0.1,
-            'max_output_tokens': 4096,
-            'top_p': 0.1,
-        },
-        tools=[{
-            'type': 'web_search',
-            'search_context': {
-                'time_range': f'{before} to {curr_date}',
-                'search_type': 'social_media',
-                'topic': f'{ticker} stock news'
-            }
-        }],
-        safety_settings=[
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_NONE"
-            }
-        ]
+        config=types.GenerateContentConfig(
+            temperature=0.1,
+            max_output_tokens=4096,
+            top_p=0.1,
+            # tools=[types.Tool(google_search=types.GoogleSearch())],
+            response_modalities=['TEXT'],
+        ),
     )
-    
     return response.text
 
 
@@ -783,48 +756,23 @@ def get_fundamentals_llm(ticker, curr_date):
     # Initialize the model
     client = genai.Client()
     model_id = 'gemini-2.0-flash'
-    
+
     # Calculate the date range
     start_date = datetime.strptime(curr_date, '%Y-%m-%d')
     before = start_date - relativedelta(days=30)  # Look back one month
     before = before.strftime('%Y-%m-%d')
-    
+
     prompt = f'Can you search Fundamental for discussions on {ticker} during {before} to {curr_date}. Make sure you only get the data posted during that period. List as a table, with PE/PS/Cash flow/ etc'
-    
+
     response = client.models.generate_content(
-        model = model_id,
+        model=model_id,
         contents=prompt,
-        generation_config={
-            'temperature': 0.1,
-            'max_output_tokens': 4096,
-            'top_p': 1,
-        },
-        tools=[{
-            'type': 'web_search',
-            'search_context': {
-                'time_range': f'{before} to {curr_date}',
-                'search_type': 'financial_analysis',
-                'topic': f'{ticker} fundamentals financial metrics'
-            }
-        }],
-        safety_settings=[
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_NONE"
-            }
-        ]
+        config=types.GenerateContentConfig(
+            temperature=0.1,
+            max_output_tokens=4096,
+            top_p=1,
+            tools=[types.Tool(google_search=types.GoogleSearch())],
+            response_modalities=['TEXT'],
+        ),
     )
-    
     return response.text

@@ -42,8 +42,13 @@ def create_social_media_analyst(llm, toolkit):
         prompt = prompt.partial(ticker=ticker)
 
         chain = prompt | llm.bind_tools(tools)
-
-        result = chain.invoke(state['messages'])
+        
+        # Ensure we have at least one message with the company name
+        messages = state.get('messages', [])
+        if not messages:
+            messages = [('human', f"Analyze {company_name}")]
+        
+        result = chain.invoke(messages)
 
         return {
             'messages': [result],
